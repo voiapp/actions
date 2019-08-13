@@ -11,7 +11,7 @@ inputs:
   password:
     description: 'Password for the registry.'
     default: ''
-  jsonKey: 
+  json_key: 
     description: 'Google Application Credentails JSON key.'
     default: ''
   dockerfile:
@@ -19,12 +19,12 @@ inputs:
     default: 'Dockerfile'
   context:
     description: 'The context Kaniko is working in.'
-  logLevel:
+  log_level:
     description: 'Kaniko log level.'
     default: 'info'
   target:
     description: 'Target'
-  buildArgs:
+  build_args:
     description: 'Build args to the image'
     default: ''
   tags:

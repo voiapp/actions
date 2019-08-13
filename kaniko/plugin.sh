@@ -29,7 +29,7 @@ fi
 
 DOCKERFILE=${INPUT_DOCKERFILE:-Dockerfile}
 CONTEXT=${INPUT_CONTEXT:-$PWD}
-LOG=${INPUT_LOG:-info}
+LOG=${INPUT_LOG_LEVEL:-info}
 EXTRA_OPTS=""
 
 if [[ -n "${INPUT_TARGET:-}" ]]; then
