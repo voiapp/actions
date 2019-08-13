@@ -1,0 +1,43 @@
+name: 'Build an image with Kaniko'
+description: 'Pushes an image to Google Container Registry'
+author: 'VOI'
+inputs: 
+  registry:
+    description: 'The Go version to download (if necessary) and use. Example: 1.9.3'
+    default: 'index.docker.io'
+  username:
+    description: 'Username for the registry.'
+    default: ''
+  password:
+    description: 'Password for the registry.'
+    default: ''
+  jsonKey: 
+    description: 'Google Application Credentails JSON key.'
+    default: ''
+  dockerfile:
+    description: 'The Dockerfile path.'
+    default: 'Dockerfile'
+  context:
+    description: 'The context Kaniko is working in.'
+  logLevel:
+    description: 'Kaniko log level.'
+    default: 'info'
+  target:
+    description: 'Target'
+  buildArgs:
+    description: 'Build args to the image'
+    default: ''
+  tags:
+    description: 'The image tags.'
+    default: ''
+  repo:
+    description: 'The repo for the image.'
+    default: ''
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'award'  
+  color: 'green'
