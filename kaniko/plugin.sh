@@ -25,6 +25,7 @@ fi
 if [ "${INPUT_JSON_KEY:-}" ];then
     echo "${INPUT_JSON_KEY}" > /kaniko/gcr.json
     export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/gcr.json
+    cat $GOOGLE_APPLICATION_CREDENTIALS | wc -l
 fi
 
 DOCKERFILE=${INPUT_DOCKERFILE:-Dockerfile}
