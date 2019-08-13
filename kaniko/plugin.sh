@@ -8,6 +8,8 @@ REGISTRY=${INPUT_REGISTRY:-index.docker.io}
 
 if [ "${INPUT_USERNAME:-}" ] || [ "${INPUT_PASSWORD:-}" ]; then
     DOCKER_AUTH=`echo -n "${INPUT_USERNAME}:${INPUT_PASSWORD}" | base64 | tr -d "\n"`
+    echo "Using basic auth" $INPUT_USERNAME
+    echo $INPUT_PASSWORD | wc -m
 
     cat > /kaniko/.docker/config.json <<DOCKERJSON
 {
