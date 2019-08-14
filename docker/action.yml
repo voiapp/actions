@@ -15,7 +15,7 @@ inputs:
     description: 'The Dockerfile path.'
     default: 'Dockerfile'
   context:
-    description: 'The context Kaniko is working in.'
+    description: 'The context docker is working in.'
   target:
     description: 'Target'
   build_args:

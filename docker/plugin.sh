@@ -7,7 +7,6 @@ REGISTRY=${INPUT_REGISTRY:-index.docker.io}
 
 if [ "${INPUT_USERNAME:-}" ] || [ "${INPUT_PASSWORD:-}" ]; then
     DOCKER_AUTH=`echo -n "${INPUT_USERNAME}:${INPUT_PASSWORD}" | base64 | tr -d "\n"`
-
     cat > /root/.docker/config.json <<DOCKERJSON
 {
     "auths": {
