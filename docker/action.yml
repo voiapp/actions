@@ -1,0 +1,37 @@
+name: 'Build and push an image with docker'
+description: 'Builds, tags and pushes an image'
+author: 'VOI'
+inputs: 
+  registry:
+    description: 'The registry'
+    default: 'index.docker.io'
+  username:
+    description: 'Username for the registry.'
+    default: ''
+  password:
+    description: 'Password for the registry.'
+    default: ''
+  dockerfile:
+    description: 'The Dockerfile path.'
+    default: 'Dockerfile'
+  context:
+    description: 'The context Kaniko is working in.'
+  target:
+    description: 'Target'
+  build_args:
+    description: 'Build args to the image'
+    default: ''
+  tags:
+    description: 'The image tags.'
+    default: ''
+  repo:
+    description: 'The repo for the image.'
+    default: ''
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'award'  
+  color: 'green'
