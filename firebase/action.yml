@@ -1,0 +1,21 @@
+name: 'Deploy to firebase'
+description: 'Deploys build to firebase'
+author: 'VOI'
+inputs: 
+  project:
+    description: 'Firebase project ID '
+    required: true
+  json_key:
+    description: 'Google Service Account JSON key'
+    required: true
+  context:
+    description: 'Context to run firebase from'
+    default: '.'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'award'  
+  color: 'green'

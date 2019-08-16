@@ -1,0 +1,17 @@
+name: 'Get tags in a workflow'
+description: 'Get tags in a workflow'
+author: 'VOI'
+inputs: 
+  config:
+    description: 'The path to the config file'
+    default: ''
+outputs:
+  tags: 
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'award'  
+  color: 'green'
