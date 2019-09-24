@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "$GCLOUD_AUTH" | python -m base64 -d > "$HOME"/gcloud.json
+sh -c "gcloud auth activate-service-account --key-file=$HOME/gcloud.json"
+
 /setup-ci.sh
 git config --global user.name "$COMMIT_USER_NAME"
 git config --global user.email "$COMMIT_USER_EMAIL"

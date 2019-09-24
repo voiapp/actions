@@ -35,6 +35,15 @@ jobs:
           commit-message: "Commit message"
 ```
 
+### Environment variables
+| Key | Description |
+|---:|---|
+| `GCLOUD_AUTH` | Service account |
+| `GITHUB_TOKEN` | Current GitHub token used by a job |
+
+> **Q**: Why we're doing gcloud auth here?
+> A: Builder image contains a SSH key, but it's encrypted with gcloud KMS. Haven't found how to do it right using the GITHUB_TOKEN. 
+
 ### Arguments
 
 | Key | Description | Default |
