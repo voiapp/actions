@@ -1,0 +1,26 @@
+name: 'Git push in PR'
+description: 'Git push the changes in pull request'
+author: 'VOI'
+inputs:
+  commit-message:
+    description: 'Commit message'
+    default: 'default message'
+  commit-user-name:
+    description: 'User name to use with a commit'
+    default: 'voi-bender'
+  commit-user-email:
+    description: 'User email to use with a commit'
+    default: 'tech@voiapp.io'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    COMMIT_USER_NAME: ${{ inputs.commit-user-name }}
+    COMMIT_USER_EMAIL: ${{ inputs.commit-user-email }}
+  args:
+    - ${{ inputs.commit-message }}
+
+branding:
+  icon: 'award'
+  color: 'green'
