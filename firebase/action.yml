@@ -2,6 +2,9 @@ name: 'Deploy to firebase'
 description: 'Deploys build to firebase'
 author: 'VOI'
 inputs: 
+  only_arg:
+    description: 'If you want to send an argument to --only'
+    default: ''
   project:
     description: 'Firebase project ID '
     required: true
