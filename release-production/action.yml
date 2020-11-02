@@ -10,6 +10,11 @@ inputs:
     description: 'Secret used to call the webhook on Spinnaker.'
     required: true
 
+  swagger-hub-token:
+    description: 'Token used to publish Swagger API documentation to Swagger Hub. Leave empty to disable.'
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -25,3 +30,6 @@ runs:
       shell: bash
       env:
         SPINNAKER_SECRET: ${{ inputs.spinnaker-secret }}
+
+    - run: SWAGGER_HUB_TOKEN="${{ secrets.SWAGGER_HUB_TOKEN }}" VERSION=$(basename ${GITHUB_REF}) [ -z "$SWAGGER_HUB_TOKEN" ] || make publish_docs
+      shell: bash
