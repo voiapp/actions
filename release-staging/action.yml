@@ -1,0 +1,29 @@
+name: 'Release to staging'
+description: 'Deploys a PR to staging'
+
+inputs:
+  gcloud-service-account:
+    description: 'Base64-encoded service account. Used to download private Docker images.'
+    required: true
+
+  spinnaker-secret:
+    description: 'Secret used to call the webhook on Spinnaker.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
+      shell: bash
+
+    - run: make push
+      shell: bash
+      env:
+        DOCKER_TOOLS: true
+        TAG_NAME: PR-${{ github.event.pull_request.number }}
+
+    - run: make trigger_spinnaker
+      shell: bash
+      env:
+        TAG_NAME: PR-${{ github.event.pull_request.number }}
+        SPINNAKER_SECRET: ${{ inputs.spinnaker-secret }}
