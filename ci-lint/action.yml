@@ -1,0 +1,18 @@
+name: 'Linters'
+description: 'Runs a standard set of linters'
+
+inputs:
+  gcloud-service-account:  # id of input
+    description: 'Base64-encoded service account. Used to download private Docker images.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
+      shell: bash
+
+    - run: make lint
+      shell: bash
+      env:
+        DOCKER_TOOLS: true
