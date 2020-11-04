@@ -31,5 +31,5 @@ runs:
       env:
         SPINNAKER_SECRET: ${{ inputs.spinnaker-secret }}
 
-    - run: SWAGGER_HUB_TOKEN="${{ secrets.SWAGGER_HUB_TOKEN }}" VERSION=$(basename ${GITHUB_REF}) [ -z "$SWAGGER_HUB_TOKEN" ] || make publish_docs
+    - run: SWAGGER_HUB_TOKEN="${{ inputs.swagger-hub-token }}" VERSION=$(basename ${GITHUB_REF}) [ -z "$SWAGGER_HUB_TOKEN" ] || make publish_docs
       shell: bash
