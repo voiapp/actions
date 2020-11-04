@@ -40,4 +40,5 @@ jobs:
         with:
           gcloud-service-account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
           spinnaker-secret: ${{ secrets.SPINNAKER_SECRET }}
+          swagger-hub-token: ${{ secrets.SWAGGER_HUB_TOKEN }}
 ```
