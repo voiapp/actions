@@ -1,0 +1,18 @@
+name: 'Tests'
+description: 'Runs a standard test suite'
+
+inputs:
+  gcloud-service-account:
+    description: 'Base64-encoded service account. Used to download private Docker images.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
+      shell: bash
+
+    - run: make test
+      shell: bash
+      env:
+        DOCKER_TOOLS: true

@@ -1,0 +1,35 @@
+name: 'Release to production'
+description: 'Deploys to production'
+
+inputs:
+  gcloud-service-account:
+    description: 'Base64-encoded service account. Used to download private Docker images.'
+    required: true
+
+  spinnaker-secret:
+    description: 'Secret used to call the webhook on Spinnaker.'
+    required: true
+
+  swagger-hub-token:
+    description: 'Token used to publish Swagger API documentation to Swagger Hub. Leave empty to disable.'
+    required: false
+    default: ''
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
+      shell: bash
+
+    - run: TAG_NAME=$(basename ${GITHUB_REF}) make push
+      shell: bash
+      env:
+        DOCKER_TOOLS: true
+
+    - run: TAG_NAME=$(basename ${GITHUB_REF}) make trigger_spinnaker
+      shell: bash
+      env:
+        SPINNAKER_SECRET: ${{ inputs.spinnaker-secret }}
+
+    - run: SWAGGER_HUB_TOKEN="${{ inputs.swagger-hub-token }}" VERSION=$(basename ${GITHUB_REF}) [ -z "$SWAGGER_HUB_TOKEN" ] || make publish_docs
+      shell: bash
