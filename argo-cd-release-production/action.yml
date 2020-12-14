@@ -1,0 +1,77 @@
+name: 'Release to production'
+description: 'Deploys to production'
+
+env:
+  MANIFEST_REPO: "voiapp/argo-cd-apps"
+  MANIFEST_REPO_BRANCH: "main"
+  YQ_VERSION: 3.4.1
+
+inputs:
+  gcloud-service-account:
+    description: 'Base64-encoded service account. Used to download private Docker images.'
+    required: true
+  github-pat:
+    description: 'Github Personal Access Token. Used to create PR using GitHub API in another repository.'
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Create image
+      shell: bash
+      run: |
+        echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
+        DOCKER_TOOLS=true TAG_NAME=$(basename ${GITHUB_REF}) make push
+    - name: Checkout manifests
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.MANIFEST_REPO }}
+        ref: ${{ env.MANIFEST_REPO_BRANCH }}
+        ssh-key: ${{ secrets.ARGO_CD_APPS_TOKEN }}
+    - name: Install yq
+      run: |
+        sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+    - name: Update image with yq and push commit
+      run: |
+        TAG=$(basename ${GITHUB_REF})
+        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
+        IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${TAG}-${SHA}"
+        yq w ${VALUES_FILE} "image" ${IMAGE} > ${VALUES_FILE}
+
+        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
+        git config --global user.name ${GITHUB_ACTOR}
+        git commit -am "Set image for deploy"
+        git push
+    - name: Checkout manifests again
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.MANIFEST_REPO }}
+        ref: ${{ env.MANIFEST_REPO_BRANCH }}
+        ssh-key: ${{ secrets.ARGO_CD_APPS_TOKEN }}
+    - name: Update image with yq and push branch
+      run: |
+        TAG=$(basename ${GITHUB_REF})
+        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        IMAGE="${REGISTRY}/${{ github.event.repository.name }}:${TAG}-${SHA}"
+        VALUES_FILE="${{ github.event.repository.name }}/values/prod.yaml"
+
+        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
+        git config --global user.name ${GITHUB_ACTOR}
+
+        yq w ${VALUES_FILE} "image" ${IMAGE} > ${VALUES_FILE}
+
+        git commit -am "Set image for deploy"
+    - name: Create PR
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ inputs.github-pat }}
+        base: ${{env.MANIFEST_REPO_BRANCH}}
+        body: 'Deploy new image to production for SHA ${{github.sha}}'
+        branch: deploy-prod-${{github.sha}}
+        delete-branch: true
+        title: 'Deploy ${{ github.event.repository.name }} to production'
