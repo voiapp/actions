@@ -19,23 +19,25 @@ runs:
 
   steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2 #Migrate to raw bash or move to calling action
     - name: Create image
       shell: bash
       run: |
         echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
         DOCKER_TOOLS=true TAG_NAME=$(basename ${GITHUB_REF}) make push
     - name: Checkout manifests
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2 #Migrate to raw bash or move to calling action
       with:
         repository: ${{ env.MANIFEST_REPO }}
         ref: ${{ env.MANIFEST_REPO_BRANCH }}
         ssh-key: ${{ secrets.ARGO_CD_APPS_TOKEN }}
     - name: Install yq
+      shell: bash
       run: |
         sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
     - name: Update image with yq and push commit
+      shell: bash
       run: |
         TAG=$(basename ${GITHUB_REF})
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
@@ -47,13 +49,8 @@ runs:
         git config --global user.name ${GITHUB_ACTOR}
         git commit -am "Set image for deploy"
         git push
-    - name: Checkout manifests again
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ env.MANIFEST_REPO }}
-        ref: ${{ env.MANIFEST_REPO_BRANCH }}
-        ssh-key: ${{ secrets.ARGO_CD_APPS_TOKEN }}
     - name: Update image with yq and push branch
+      shell: bash
       run: |
         TAG=$(basename ${GITHUB_REF})
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
@@ -62,16 +59,15 @@ runs:
 
         git config --global user.email ${GITHUB_ACTOR}@voiapp.io
         git config --global user.name ${GITHUB_ACTOR}
+        git checkout -b deploy-prod-${{github.sha}}
 
         yq w ${VALUES_FILE} "image" ${IMAGE} > ${VALUES_FILE}
 
         git commit -am "Set image for deploy"
     - name: Create PR
-      uses: peter-evans/create-pull-request@v3
-      with:
-        token: ${{ inputs.github-pat }}
-        base: ${{env.MANIFEST_REPO_BRANCH}}
-        body: 'Deploy new image to production for SHA ${{github.sha}}'
-        branch: deploy-prod-${{github.sha}}
-        delete-branch: true
-        title: 'Deploy ${{ github.event.repository.name }} to production'
+      shell: bash
+      run: |
+        gh auth login --with-token <<< ${{ inputs.github-pat }}
+        gh pr create -t "Deploy ${{ github.event.repository.name }} to production" \
+        -b "Deploy new image to production for SHA ${{github.sha}}" \
+        -B ${{env.MANIFEST_REPO_BRANCH}} -H deploy-prod-${{github.sha}}

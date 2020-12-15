@@ -16,23 +16,25 @@ runs:
 
   steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2 #Migrate to raw bash or move to calling action
     - name: Create image
       shell: bash
       run: |
         echo "${{ inputs.gcloud-service-account }}" | base64 -d | docker login -u _json_key --password-stdin https://eu.gcr.io
         TAG_NAME=PR-${{ github.event.pull_request.number }} make push
     - name: Checkout manifests
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2 #Migrate to raw bash or move to calling action
       with:
         repository: ${{ env.MANIFEST_REPO }}
         ref: ${{ env.MANIFEST_REPO_BRANCH }}
         ssh-key: ${{ secrets.ARGO_CD_APPS_TOKEN }}
     - name: Install yq
+      shell: bash
       run: |
         sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
     - name: Update image with yq and push commit
+      shell: bash
       run: |
         TAG=PR-${{ github.event.pull_request.number }}
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
