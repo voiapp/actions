@@ -1,0 +1,27 @@
+name: 'Release to staging'
+description: 'Release to staging'
+
+env:
+  YQ_VERSION: 3.4.1
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install yq
+      shell: bash
+      run: |
+        sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+    - name: Update image with yq and push commit
+      shell: bash
+      run: |
+        TAG=PR-${{ github.event.pull_request.number }}
+        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
+        IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${TAG}-${SHA}"
+        yq w ${VALUES_FILE} "image" ${IMAGE} > ${VALUES_FILE}
+
+        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
+        git config --global user.name ${GITHUB_ACTOR}
+        git commit -am "Set image for deploy"
+        git push
