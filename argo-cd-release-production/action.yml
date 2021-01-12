@@ -21,6 +21,7 @@ runs:
         sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
     - name: Update image with yq and push branch
+      shell: bash
       run: |
         TAG=$(basename ${GITHUB_REF})
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
