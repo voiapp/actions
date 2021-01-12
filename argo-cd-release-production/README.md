@@ -7,10 +7,6 @@ It expects a `push` target to be available in a Makefile.
 
 ## Inputs
 
-### `gcloud-service-account`
-
-**Required** — Base64-encoded service account. Used to download private Docker images.
-
 ### `github-pat`
 
 **Required** — Github Personal Access Token. Used to create a PR using GitHub API in another repository.
@@ -34,6 +30,5 @@ jobs:
 
       - uses: voiapp/actions/argo-cd-release-production@master
         with:
-          gcloud-service-account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
           github-pat: ${{ secrets.REPO_GITHUB_PAT }}
 ```
