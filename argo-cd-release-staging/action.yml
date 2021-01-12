@@ -19,7 +19,7 @@ runs:
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
         VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
         IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${TAG}-${SHA}"
-        yq w ${VALUES_FILE} "image" ${IMAGE} > ${VALUES_FILE}
+        yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
 
         git config --global user.email ${GITHUB_ACTOR}@voiapp.io
         git config --global user.name ${GITHUB_ACTOR}
