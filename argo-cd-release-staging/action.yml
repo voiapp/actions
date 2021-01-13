@@ -15,7 +15,13 @@ runs:
     - name: Update image with yq and push commit
       shell: bash
       run: |
-        TAG=PR-${{ github.event.pull_request.number }}
+        if [ -z "${{ github.event.pull_request.number }}" ]
+        then
+          TAG=$(basename ${GITHUB_REF})
+        else
+          TAG=PR-${{ github.event.pull_request.number }}
+        fi
+
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
         VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
         IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${TAG}-${SHA}"
