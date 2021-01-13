@@ -1,14 +1,13 @@
 name: 'Release to staging'
 description: 'Release to staging'
 
-env:
-  YQ_VERSION: 3.4.1
-
 runs:
   using: "composite"
   steps:
     - name: Install yq
       shell: bash
+      env:
+        YQ_VERSION: 3.4.1
       run: |
         sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/$YQ_VERSION/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
