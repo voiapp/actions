@@ -23,15 +23,17 @@ runs:
         TAG=$(basename ${GITHUB_REF})
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
         VALUES_FILE="${{ github.event.repository.name }}/values/prod.yaml"
-        IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${TAG}-${SHA}"
+        VERSION="${TAG}-${SHA}"
+        IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
 
         git config --global user.email ${GITHUB_ACTOR}@voiapp.io
         git config --global user.name ${GITHUB_ACTOR}
         git checkout -b deploy-prod-${{github.sha}}
 
         yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
+        yq w --inplace ${VALUES_FILE} "version" ${VERSION}
 
-        git commit -am "Set image for deploy using tag ${TAG}-${SHA}. Commit: ${{github.event.head_commit.message}} by ${{github.event.head_commit.author.name}}"
+        git commit -am "Set image for deploy using tag ${VERSION}. Commit: ${{github.event.head_commit.message}} by ${{github.event.head_commit.author.name}}"
         git push --set-upstream origin deploy-prod-${{github.sha}}
     - name: Create PR
       shell: bash
