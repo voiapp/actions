@@ -24,6 +24,9 @@ runs:
         SHA=$(echo $GITHUB_SHA | cut -c 1-7)
         VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
         VERSION="${TAG}-${SHA}"
+
+        [ -f $VALUES_FILE ] || ( echo "$VALUES_FILE does not exist. Is the service configured to be deployed with Argo CD?"; exit 1 )
+
         IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
         yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
         yq w --inplace ${VALUES_FILE} "version" ${VERSION}
