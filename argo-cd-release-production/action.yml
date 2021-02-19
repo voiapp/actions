@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         TAG=$(basename ${GITHUB_REF})
-        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        SHA=$(echo $GITHUB_SHA | cut -c 1-8)
         VALUES_FILE="${{ github.event.repository.name }}/values/prod.yaml"
         VERSION="${TAG}-${SHA}"
 
