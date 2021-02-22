@@ -5,6 +5,8 @@ inputs:
   github-pat:
     description: 'Github Personal Access Token. Used to create PR using GitHub API in another repository.'
     required: true
+  short-sha:
+    description: 'Github short SHA'
 
 runs:
   using: "composite"
@@ -21,7 +23,14 @@ runs:
       shell: bash
       run: |
         TAG=$(basename ${GITHUB_REF})
-        SHA=$(git rev-parse --short $GITHUB_SHA)
+
+        if [ -z "${{ inputs.short-sha }}" ]
+        then
+          SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        else
+          SHA=${{ inputs.short-sha }}
+        fi
+
         VALUES_FILE="${{ github.event.repository.name }}/values/prod.yaml"
         VERSION="${TAG}-${SHA}"
 
