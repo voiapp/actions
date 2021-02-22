@@ -1,6 +1,10 @@
 name: 'Release to staging'
 description: 'Release to staging'
 
+inputs:
+  short-sha:
+    description: 'Github short SHA'
+
 runs:
   using: "composite"
   steps:
@@ -21,7 +25,13 @@ runs:
           TAG=PR-${{ github.event.pull_request.number }}
         fi
 
-        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        if [ -z "${{ inputs.short-sha }}" ]
+        then
+          SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        else
+          SHA=${{ inputs.short-sha }}
+        fi
+
         VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
         VERSION="${TAG}-${SHA}"
 
