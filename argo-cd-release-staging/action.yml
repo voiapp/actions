@@ -21,7 +21,7 @@ runs:
           TAG=PR-${{ github.event.pull_request.number }}
         fi
 
-        SHA=$(echo $GITHUB_SHA | cut -c 1-7)
+        SHA=$(git rev-parse --short $GITHUB_SHA)
         VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
         VERSION="${TAG}-${SHA}"
 
