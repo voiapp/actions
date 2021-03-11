@@ -38,7 +38,7 @@ runs:
 
         IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
 
-        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
+        git config --global user.email ${{ github.event.head_commit.author.email }}
         git config --global user.name ${GITHUB_ACTOR}
         git checkout -b deploy-prod-${{github.sha}}
 

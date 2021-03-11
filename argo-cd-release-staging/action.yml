@@ -41,7 +41,7 @@ runs:
         yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
         yq w --inplace ${VALUES_FILE} "version" ${VERSION}
 
-        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
+        git config --global user.email ${{ github.event.head_commit.author.email }}
         git config --global user.name ${GITHUB_ACTOR}
         git commit -am "Set image for deploy"
         git push
