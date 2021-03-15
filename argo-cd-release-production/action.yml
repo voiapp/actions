@@ -45,7 +45,11 @@ runs:
         yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
         yq w --inplace ${VALUES_FILE} "version" ${VERSION}
 
-        git commit -am "Set image for deploy using tag ${VERSION}. Commit: ${{github.event.head_commit.message}} by ${{github.event.head_commit.author.name}}"
+        # fully qualify the PR number (e.g. #123) as GitHub UI will incorrectly interpret it as a local PR
+        URL="https:\/\/github.com\/voiapp\/"${{ github.event.repository.name }}"\/pull\/"
+        MESSAGE=$(echo "${{github.event.head_commit.message}}" | sed 's/\(.*\)#/\1 '"$URL"'/')
+
+        git commit -am "Set image for deploy using tag ${VERSION}. Commit: ${MESSAGE} by ${{github.event.head_commit.author.name}}"
         git push --set-upstream origin deploy-prod-${{github.sha}}
     - name: Create PR
       shell: bash
@@ -53,7 +57,11 @@ runs:
         MANIFEST_REPO: "voiapp/argo-cd-apps"
         MANIFEST_REPO_BRANCH: "main"
       run: |
+        # fully qualify the PR number (e.g. #123) as GitHub UI will incorrectly interpret it as a local PR
+        URL="https:\/\/github.com\/voiapp\/"${{ github.event.repository.name }}"\/pull\/"
+        MESSAGE=$(echo "${{github.event.head_commit.message}}" | sed 's/\(.*\)#/\1 '"$URL"'/')
+
         gh auth login --with-token <<< ${{ inputs.github-pat }}
         gh pr create -t "Deploy ${{ github.event.repository.name }} to production by ${{github.event.head_commit.author.name}}" \
-        -b "Deploy new image to production for SHA ${{github.sha}}. Commit: ${{github.event.head_commit.message}} by ${{github.event.head_commit.author.name}}" \
+        -b "Deploy new image to production for SHA ${{github.sha}}. Commit: ${MESSAGE} by ${{github.event.head_commit.author.name}}" \
         -B ${{env.MANIFEST_REPO_BRANCH}} -H deploy-prod-${{github.sha}}
