@@ -46,8 +46,10 @@ runs:
         yq w --inplace ${VALUES_FILE} "version" ${VERSION}
 
         # fully qualify the PR number (e.g. #123) as GitHub UI will incorrectly interpret it as a local PR
+        # we must use toJSON function to avoid breaking echo when quotes are in commit messages
+        ESCAPED_COMMIT_MESSAGE=$(echo ${{ toJSON(github.event.head_commit.message) }})
         URL="https:\/\/github.com\/voiapp\/"${{ github.event.repository.name }}"\/pull\/"
-        MESSAGE=$(echo "${{github.event.head_commit.message}}" | sed 's/\(.*\)#/\1 '"$URL"'/')
+        MESSAGE=$(echo "$ESCAPED_COMMIT_MESSAGE" | sed 's/\(.*\)#/\1 '"$URL"'/')
 
         git commit -am "Set image for deploy using tag ${VERSION}. Commit: ${MESSAGE} by ${{github.event.head_commit.author.name}}"
         git push --set-upstream origin deploy-prod-${{github.sha}}
@@ -58,8 +60,10 @@ runs:
         MANIFEST_REPO_BRANCH: "main"
       run: |
         # fully qualify the PR number (e.g. #123) as GitHub UI will incorrectly interpret it as a local PR
+        # we must use toJSON function to avoid breaking echo when quotes are in commit messages
+        ESCAPED_COMMIT_MESSAGE=$(echo ${{ toJSON(github.event.head_commit.message) }})
         URL="https:\/\/github.com\/voiapp\/"${{ github.event.repository.name }}"\/pull\/"
-        MESSAGE=$(echo "${{github.event.head_commit.message}}" | sed 's/\(.*\)#/\1 '"$URL"'/')
+        MESSAGE=$(echo "$ESCAPED_COMMIT_MESSAGE" | sed 's/\(.*\)#/\1 '"$URL"'/')
 
         gh auth login --with-token <<< ${{ inputs.github-pat }}
         gh pr create -t "Deploy ${{ github.event.repository.name }} to production by ${{github.event.head_commit.author.name}}" \
