@@ -11,6 +11,11 @@ It expects a `push` target to be available in a Makefile.
 
 **Required** — Github short SHA
 
+
+### `environment`
+
+**Optional** — Where to deploy the change
+
 ## Example usage
 
 ```yaml

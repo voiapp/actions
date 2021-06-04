@@ -4,6 +4,10 @@ description: 'Release to staging'
 inputs:
   short-sha:
     description: 'Github short SHA'
+  environment:
+    description: 'Environment to push to'
+    required: false
+    default: 'stage'
 
 runs:
   using: "composite"
@@ -18,6 +22,12 @@ runs:
     - name: Update image with yq and push commit
       shell: bash
       run: |
+        # never allow this action to manipulate prod.yaml
+        if [ "${{ inputs.short-sha }}" == "prod" ]
+        then
+          exit 1
+        fi
+
         if [ -z "${{ github.event.pull_request.number }}" ]
         then
           TAG=$(basename ${GITHUB_REF})
@@ -32,7 +42,7 @@ runs:
           SHA=${{ inputs.short-sha }}
         fi
 
-        VALUES_FILE="${{ github.event.repository.name }}/values/stage.yaml"
+        VALUES_FILE="${{ github.event.repository.name }}/values/${{ inputs.short-sha }}.yaml"
         VERSION="${TAG}-${SHA}"
 
         [ -f $VALUES_FILE ] || ( echo "$VALUES_FILE does not exist. Is the service configured to be deployed with Argo CD?"; exit 1 )
