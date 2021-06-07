@@ -42,7 +42,7 @@ runs:
         fi
 
         # modify the values file for each environment
-        ENVIRONMENTS=${{ inputs.environment }}
+        ENVIRONMENTS=$(echo ${{ inputs.environment }} | tr -d "[:blank:]")
         for i in ${ENVIRONMENTS//,/ }
         do
           VALUES_FILE="${{ github.event.repository.name }}/values/$i.yaml"
