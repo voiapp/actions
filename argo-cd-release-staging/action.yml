@@ -41,14 +41,19 @@ runs:
           SHA=${{ inputs.short-sha }}
         fi
 
-        VALUES_FILE="${{ github.event.repository.name }}/values/${{ inputs.environment }}.yaml"
-        VERSION="${TAG}-${SHA}"
+        # modify the values file for each environment
+        ENVIRONMENTS=$(echo ${{ inputs.environment }} | tr -d "[:blank:]")
+        for i in ${ENVIRONMENTS//,/ }
+        do
+          VALUES_FILE="${{ github.event.repository.name }}/values/$i.yaml"
+          VERSION="${TAG}-${SHA}"
 
-        [ -f $VALUES_FILE ] || ( echo "$VALUES_FILE does not exist. Is the service configured to be deployed with Argo CD?"; exit 1 )
+          [ -f $VALUES_FILE ] || ( echo "$VALUES_FILE does not exist. Is the service configured to be deployed with Argo CD?"; exit 1 )
 
-        IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
-        yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
-        yq w --inplace ${VALUES_FILE} "version" ${VERSION}
+          IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
+          yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
+          yq w --inplace ${VALUES_FILE} "version" ${VERSION}
+        done
 
         git config --global user.email ${GITHUB_ACTOR}@voiapp.io
         git config --global user.name ${GITHUB_ACTOR}
