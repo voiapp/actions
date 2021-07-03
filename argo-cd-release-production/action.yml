@@ -38,8 +38,8 @@ runs:
 
         IMAGE=$(yq r ${VALUES_FILE} "image" | sed "s/:.*$//")":${VERSION}"
 
-        git config --global user.email ${GITHUB_ACTOR}@voiapp.io
-        git config --global user.name ${GITHUB_ACTOR}
+        git config --global user.email ${{ github.event.head_commit.author.email }}
+        git config --global user.name ${{github.event.head_commit.author.name}}
         git checkout -b deploy-prod-${{github.sha}}
 
         yq w --inplace ${VALUES_FILE} "image" ${IMAGE}
